@@ -9,6 +9,7 @@
 # ----------------------------------------------------------
 
 from PIL import Image
+from PIL import UnidentifiedImageError
 import sys
 import re
 
@@ -25,43 +26,46 @@ def process_image(file_name: str) -> None:
     """
     file_name_without_extension = re.sub(r'\..*', '', file_name)
     if ".png" in file_name:
-        image = Image.open(file_name)
-        if image.mode == "RGB":
-            # extract_hidden_images(image)
+        try:
+            image = Image.open(file_name)
+            if image.mode == "RGB":
+                # extract_hidden_images(image)
 
-            pixin = image.load()  # type: ignore
-            width, height = image.size
+                pixin = image.load()  # type: ignore
+                width, height = image.size
 
-            output_image = Image.new('1', (width, height))
-            pixout = output_image.load()  # type: ignore
+                output_image = Image.new('1', (width, height))
+                pixout = output_image.load()  # type: ignore
 
-            file_names_colors = ['red', 'green', 'blue']
-            for i in range(3):  # for each color channel
-                for y in range(height):
-                    for x in range(width):
-                        r, g, b = pixin[x, y]
-                        if i == 0:
-                            if r & 1:
-                                pixout[x, y] = 1  # black
+                file_names_colors = ['red', 'green', 'blue']
+                for i in range(3):  # for each color channel
+                    for y in range(height):
+                        for x in range(width):
+                            r, g, b = pixin[x, y]
+                            if i == 0:
+                                if r & 1:
+                                    pixout[x, y] = 1  # black
 
-                            else:
-                                pixout[x, y] = 0  # white
-                        elif i == 1:
-                            if g & 1:
-                                pixout[x, y] = 1
-                            else:
-                                pixout[x, y] = 0
-                        elif i == 2:
-                            if b & 1:
-                                pixout[x, y] = 1
-                            else:
-                                pixout[x, y] = 0
-                output_image.save(f"{file_name_without_extension}"
-                                  f"_channel_1_{file_names_colors[i]}.png")
+                                else:
+                                    pixout[x, y] = 0  # white
+                            elif i == 1:
+                                if g & 1:
+                                    pixout[x, y] = 1
+                                else:
+                                    pixout[x, y] = 0
+                            elif i == 2:
+                                if b & 1:
+                                    pixout[x, y] = 1
+                                else:
+                                    pixout[x, y] = 0
+                    output_image.save(f"{file_name_without_extension}"
+                                    f"_channel_1_{file_names_colors[i]}.png")
 
-        else:
-            print("The mode of the file is not RGB.")
-            sys.exit()
+            else:
+                print("The mode of the file is not RGB.")
+                sys.exit()
+        except (FileNotFoundError, UnidentifiedImageError, ValueError, TypeError, AttributeError) as error:
+            print(error)
     else:
         print("Error: The provided file name doesn't have a .png extension.")
         sys.exit()
@@ -69,6 +73,10 @@ def process_image(file_name: str) -> None:
 
 if '__main__' == __name__:
     # Leer el nombre del archivo de entrada desde la terminal
-    INPUT_FILE_NAME = sys.argv[1]
+    try:
+        INPUT_FILE_NAME = sys.argv[1]
+    except IndexError:
+        print("Error: No file name provided.")
+        sys.exit()
 
     process_image(INPUT_FILE_NAME)
