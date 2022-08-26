@@ -12,6 +12,7 @@ from PIL import Image
 from PIL import UnidentifiedImageError
 import sys
 import re
+import os
 
 
 def process_image(file_name: str) -> None:
@@ -24,8 +25,8 @@ def process_image(file_name: str) -> None:
     Args:
         file_name (str): a file name of a PNG image.
     """
-    file_name_without_extension = re.sub(r'\..*', '', file_name)
-    if ".png" in file_name:
+    file_split_text = os.path.splitext(file_name)
+    if file_split_text[1] == ".png":
         try:
             image = Image.open(file_name)
             if image.mode == "RGB":
@@ -58,7 +59,7 @@ def process_image(file_name: str) -> None:
                                     pixout[x, y] = 1
                                 else:
                                     pixout[x, y] = 0
-                    output_image.save(f"{file_name_without_extension}"
+                    output_image.save(f"{file_split_text[0]}"
                                     f"_channel_1_{file_names_colors[i]}.png")
 
             else:
