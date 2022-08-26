@@ -72,7 +72,7 @@ def process_image(file_name: str) -> None:
 
 
 if '__main__' == __name__:
-    # Leer el nombre del archivo de entrada desde la terminal
+    # Read the file name from the command line
     try:
         INPUT_FILE_NAME = sys.argv[1]
     except IndexError:
